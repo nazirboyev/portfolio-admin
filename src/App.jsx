@@ -62,6 +62,44 @@ const LANGUAGES = [
   { code: 'en', name: "English", Flag: EnglishFlag }
 ];
 
+const INITIAL_PROJECTS = [
+  {
+    id: 1,
+    title: '100x Academy',
+    url: 'https://100x-academy-six.vercel.app/',
+    description: "Zamonaviy IT ta'lim platformasi va onlayn kurslar loyihasi.",
+    tags: ['React', 'Tailwind', 'Vercel']
+  },
+  {
+    id: 2,
+    title: 'Survival Arena',
+    url: 'https://survival-arena-blond.vercel.app',
+    description: "Brauzerda ishlovchi survival dinamik o'yin va interaktiv veb dastur.",
+    tags: ['JavaScript', 'Game Dev', 'Canvas']
+  },
+  {
+    id: 3,
+    title: 'Mashina Savdo',
+    url: 'https://mashina-savdo-lime.vercel.app/',
+    description: "Avtomobillar sotish va xarid qilish uchun e'lonlar maydoni.",
+    tags: ['React', 'Frontend', 'E-Commerce']
+  },
+  {
+    id: 4,
+    title: 'Snake Game',
+    url: 'https://snake-game-pi-two-39.vercel.app/',
+    description: "Klassik retro iloncha o'yinining qulay boshqaruvga ega veb talqini.",
+    tags: ['JavaScript', 'Retro Game', 'Vercel']
+  },
+  {
+    id: 5,
+    title: 'Shop Frontend',
+    url: 'https://shop-frontend-iota-lake.vercel.app/',
+    description: "Zamonaviy onlayn internet-do'kon frontend interfeysi va katalog tizimi.",
+    tags: ['React', 'Online Shop', 'UI/UX']
+  }
+];
+
 const translations = {
   uz: {
     title: "Nazirboyev | Admin Paneli",
@@ -232,10 +270,18 @@ export default function App() {
   const [statusAlert, setStatusAlert] = useState('');
 
   // Data from shared portfolio database
-  const [projects, setProjects] = useState([]);
-  const [avatar, setAvatar] = useState('/avatar.jpg');
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState(() => {
+    const saved = localStorage.getItem('nazirboyev_projects');
+    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+  });
+  const [avatar, setAvatar] = useState(() => {
+    return localStorage.getItem('nazirboyev_avatar') || '/avatar.jpg';
+  });
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('nazirboyev_messages');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form states
   const [newProject, setNewProject] = useState({ title: '', url: '', description: '', tags: '' });
@@ -272,17 +318,25 @@ export default function App() {
       const res = await fetch('/api/data');
       if (res.ok) {
         const data = await res.json();
-        if (data.projects) setProjects(data.projects);
+        if (data.projects && Array.isArray(data.projects) && data.projects.length > 0) setProjects(data.projects);
         if (data.avatar) setAvatar(data.avatar);
-        if (data.messages) setMessages(data.messages);
+        if (data.messages && Array.isArray(data.messages)) setMessages(data.messages);
       }
     } catch (err) {
       console.warn('API error, reading fallback:', err);
       // Fallback from localStorage
       const savedProjects = localStorage.getItem('nazirboyev_projects');
-      if (savedProjects) setProjects(JSON.parse(savedProjects));
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      } else {
+        setProjects(INITIAL_PROJECTS);
+      }
       const savedAvatar = localStorage.getItem('nazirboyev_avatar');
-      if (savedAvatar) setAvatar(savedAvatar);
+      if (savedAvatar) {
+        setAvatar(savedAvatar);
+      } else {
+        setAvatar('/avatar.jpg');
+      }
       const savedMsgs = localStorage.getItem('nazirboyev_messages');
       if (savedMsgs) setMessages(JSON.parse(savedMsgs));
     } finally {
