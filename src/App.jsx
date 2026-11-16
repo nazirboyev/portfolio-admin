@@ -560,7 +560,7 @@ export default function App() {
                   type="text"
                   required
                   autoFocus
-                  placeholder="nazirboyev"
+                  placeholder="••••••••"
                   className="form-input has-icon"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
